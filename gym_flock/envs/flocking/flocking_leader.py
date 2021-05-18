@@ -7,7 +7,7 @@ class FlockingLeaderEnv(FlockingRelativeEnv):
     def __init__(self):
 
         super(FlockingLeaderEnv, self).__init__()
-        self.n_leaders = 2
+        self.n_leaders = 4 #2
         self.mask = np.ones((self.n_agents,))
         self.mask[0:self.n_leaders] = 0
         self.quiver = None
@@ -35,8 +35,10 @@ class FlockingLeaderEnv(FlockingRelativeEnv):
 
     def reset(self):
         super(FlockingLeaderEnv, self).reset()
-        self.x[0:self.n_leaders, 2:4] = np.ones((self.n_leaders, 2)) * np.random.uniform(low=-self.v_max,
-                                                                                         high=self.v_max, size=(1, 1))
+        # self.x[0:self.n_leaders, 2:4] = np.ones((self.n_leaders, 2)) * np.random.uniform(low=-self.v_max,
+        #                                                                                  high=self.v_max, size=(1, 1))
+        self.x[0:self.n_leaders, 2:4] = np.ones((self.n_leaders, 2)) * [[self.v_max, 0]]
+                                                                                                                                                                          
         return (self.state_values, self.state_network)
 
     def render(self, mode='human'):
