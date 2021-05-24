@@ -68,6 +68,11 @@ register(
     max_episode_steps=200,
 )
 
+register(
+    id='FlockingLeader1-v0',
+    entry_point='gym_flock.envs.flocking:FlockingLeaderEnv1',
+    max_episode_steps=200,
+)
 
 register(
     id='FlockingObstacle-v0',
