@@ -245,7 +245,7 @@ class FlockingRelativeEnv(gym.Env):
             fig = plt.figure()
             self.ax = fig.add_subplot(111)
             line1, = self.ax.plot(self.x[:, 0], self.x[:, 1],
-                                  'bo')  # Returns a tuple of line objects, thus the comma
+                                  'b.')  # Returns a tuple of line objects, thus the comma
             self.ax.plot([0], [0], 'kx')
             plt.ylim(-1.0 * self.r_max, 1.0 * self.r_max)
             plt.xlim(-1.0 * self.r_max, 1.0 * self.r_max)
