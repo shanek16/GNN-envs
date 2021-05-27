@@ -54,10 +54,8 @@ class FlockingLeaderEnv2(FlockingRelativeEnv):
             # x, y position
             self.x[0:self.n_leaders, 0] = self.x[0:self.n_leaders, 0] + self.x[0:self.n_leaders, 2] * self.dt
             self.x[0:self.n_leaders, 1] = self.x[0:self.n_leaders, 1] + self.x[0:self.n_leaders, 3] * self.dt
-            # # x, y velocity ->>>>>>>>>>>>>>>>>>>idle?
-            # self.x[:, 2] = self.x[:, 2]
-            # self.x[:, 3] = self.x[:, 3]
-        print('leader_mode: ',leader_dict[self.leader_mode])
+        # print('leader_mode: ',leader_dict[self.leader_mode])
+        
         #sol2) if leader> front 10% of flock, x(velocity)==0
 
         self.compute_helpers()

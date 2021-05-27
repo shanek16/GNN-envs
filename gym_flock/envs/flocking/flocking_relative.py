@@ -116,6 +116,11 @@ class FlockingRelativeEnv(gym.Env):
         np.fill_diagonal(self.r2, np.Inf)
 
         self.adj_mat = (self.r2 < self.comm_radius2).astype(float)
+        print(type(self.adj_mat))
+        print(self.adj_mat.shape)
+        print(self.adj_mat)
+        print('\n\n\n')
+        # if self.leader_mode=0: self.adj_mat
 
         # Normalize the adjacency matrix by the number of neighbors - results in mean pooling, instead of sum pooling
         n_neighbors = np.reshape(np.sum(self.adj_mat, axis=1), (self.n_agents,1)) # correct - checked this
