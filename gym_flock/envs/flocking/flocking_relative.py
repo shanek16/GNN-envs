@@ -18,6 +18,7 @@ font = {'family': 'sans-serif',
 class FlockingRelativeEnv(gym.Env):
 
     def __init__(self):
+        self.n_leaders = 4
 
         # config_file = path.join(path.dirname(__file__), "params_flock.cfg")
         # config = configparser.ConfigParser()
@@ -109,18 +110,22 @@ class FlockingRelativeEnv(gym.Env):
 
         return (self.state_values, self.state_network), self.instant_cost(), False, {}
 
-    def compute_helpers(self):
+    def compute_helpers(self,*leader_mode):
 
         self.diff = self.x.reshape((self.n_agents, 1, self.nx_system)) - self.x.reshape((1, self.n_agents, self.nx_system))
         self.r2 =  np.multiply(self.diff[:, :, 0], self.diff[:, :, 0]) + np.multiply(self.diff[:, :, 1], self.diff[:, :, 1])
         np.fill_diagonal(self.r2, np.Inf)
 
         self.adj_mat = (self.r2 < self.comm_radius2).astype(float)
-        print(type(self.adj_mat))
-        print(self.adj_mat.shape)
-        print(self.adj_mat)
-        print('\n\n\n')
-        # if self.leader_mode=0: self.adj_mat
+        # if leader==passive mode: gso for leader=0
+        # print('leader_mode: ',leader_mode)
+        # print('*args: ',*leader_mode)
+        for i in leader_mode:
+            if i==0:
+                self.adj_mat[:,0:self.n_leaders]=0
+                self.adj_mat[0:self.n_leaders,:]=0
+        # print(self.adj_mat)
+        # print('\n\n\n')
 
         # Normalize the adjacency matrix by the number of neighbors - results in mean pooling, instead of sum pooling
         n_neighbors = np.reshape(np.sum(self.adj_mat, axis=1), (self.n_agents,1)) # correct - checked this
