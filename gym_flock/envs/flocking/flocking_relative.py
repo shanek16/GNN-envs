@@ -159,7 +159,7 @@ class FlockingRelativeEnv(gym.Env):
         # if leader==passive mode: don't calculate var for leader
         for i in leader_mode:
             if i==0:
-                curr_variance = -1.0 * np.sum((np.var(self.x[n_leaders:, 2:4], axis=0)))
+                curr_variance = -1.0 * np.sum((np.var(self.x[self.n_leaders:, 2:4], axis=0)))
         return curr_variance
          # return curr_variance #+ self.potential(self.r2)
          # versus_initial_vel = -1.0 * np.sum(np.sum(np.square(self.x[:, 2:4] - self.mean_vel), axis=1))

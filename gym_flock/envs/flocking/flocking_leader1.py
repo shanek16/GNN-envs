@@ -60,7 +60,7 @@ class FlockingLeaderEnv1(FlockingRelativeEnv):
         #sol2) if leader> front 10% of flock, x(velocity)==0
 
         self.compute_helpers(self.leader_mode)
-        return (self.state_values, self.state_network), self.instant_cost(), False, {}
+        return (self.state_values, self.state_network), self.instant_cost(self.leader_mode), False, {}
 
     def reset(self):
         super(FlockingLeaderEnv1, self).reset()
