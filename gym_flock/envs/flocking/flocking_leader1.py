@@ -56,13 +56,21 @@ class FlockingLeaderEnv1(FlockingRelativeEnv):
             # # x, y velocity ->>>>>>>>>>>>>>>>>>>idle?
             # self.x[:, 2] = self.x[:, 2]
             # self.x[:, 3] = self.x[:, 3]
-        # print('leader_mode: ',leader_dict[self.leader_mode])
 
         #sol2) if leader> front 10% of flock, x(velocity)==0
 
-        if min(self.x[:,0]) > self.x_goal:
+        # x in nest?
+        for i in range(self.n_agents):
+            # print(x[i,0:2])
+            if self.x[i,0] >= self.goal_x and self.x[i,1] >= -self.nest_R and self.x[i,1] < self.nest_R + 1:
+                self.x_in_nest[i] = 1
+                print('n_x_in_nest: ',sum(self.x_in_nest),'in step')
+
+
+        if min(self.x[:,0]) > self.goal_x:
             self.done = True
             print('\nn_timesteps: ',self.n_timesteps)
+            print('n_agents in nest: ',sum(self.x_in_nest))
 
         self.compute_helpers(self.leader_mode)
         return (self.state_values, self.state_network), self.instant_cost(self.leader_mode), self.done, {}
