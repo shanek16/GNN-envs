@@ -67,6 +67,11 @@ class FlockingRelativeEnv(gym.Env):
 
         self.seed()
 
+        #added
+        self.n_timesteps = 0
+        self.done=False
+        self.x_goal = 5/4*np.sqrt(self.r_max * np.sqrt(self.n_agents))#10
+
     def params_from_cfg(self, args):
         self.comm_radius = args.getfloat('comm_radius')
         self.comm_radius2 = self.comm_radius * self.comm_radius
@@ -118,14 +123,10 @@ class FlockingRelativeEnv(gym.Env):
 
         self.adj_mat = (self.r2 < self.comm_radius2).astype(float)
         # if leader==passive mode: gso for leader=0
-        # print('leader_mode: ',leader_mode)
-        # print('*args: ',*leader_mode)
         for i in leader_mode:
             if i==0:
                 self.adj_mat[:,0:self.n_leaders]=0
                 self.adj_mat[0:self.n_leaders,:]=0
-        # print(self.adj_mat)
-        # print('\n\n\n')
 
         # Normalize the adjacency matrix by the number of neighbors - results in mean pooling, instead of sum pooling
         n_neighbors = np.reshape(np.sum(self.adj_mat, axis=1), (self.n_agents,1)) # correct - checked this
@@ -174,6 +175,10 @@ class FlockingRelativeEnv(gym.Env):
         degree = 0
         min_dist = 0
         min_dist_thresh = 0.1  # 0.25
+
+        #added
+        self.done = False
+        self.n_timesteps = 0
 
         # generate an initial configuration with all agents connected,
         # and minimum distance between agents > min_dist_thresh

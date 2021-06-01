@@ -10,6 +10,7 @@ n_agents=10
 
 x = np.zeros((n_agents, 2))
 length = np.sqrt(np.random.uniform(0, r_max, size=(n_agents,)))
+print(length)
 angle = np.pi * np.random.uniform(0, 2, size=(n_agents,))
 x[:, 0] = length * np.cos(angle)
 x[:, 1] = length * np.sin(angle)

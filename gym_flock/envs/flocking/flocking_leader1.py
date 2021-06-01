@@ -13,9 +13,6 @@ class FlockingLeaderEnv1(FlockingRelativeEnv):
         self.mask[0:self.n_leaders] = 0
         self.quiver = None
         self.half_leaders = int(self.n_leaders / 2.0)
-        self.n_timesteps = 0
-        self.done=False
-        self.x_goal = 10
 
     def params_from_cfg(self, args):
         super(FlockingLeaderEnv1, self).params_from_cfg(args)
@@ -72,9 +69,7 @@ class FlockingLeaderEnv1(FlockingRelativeEnv):
 
     def reset(self):
         super(FlockingLeaderEnv1, self).reset()
-        self.leader_mode = 1 #active leader
-        self.done = False
-        self.n_timesteps = 0
+        self.leader_mode = 1 #active
         # self.x[0:self.n_leaders, 2:4] = np.ones((self.n_leaders, 2)) * np.random.uniform(low=-self.v_max,
         #                                                                                  high=self.v_max, size=(1, 1))
         self.x[0:self.n_leaders, 2:4] = np.ones((self.n_leaders, 2)) * [[self.v_max, 0]]
