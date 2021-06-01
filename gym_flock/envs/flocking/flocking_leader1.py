@@ -13,6 +13,9 @@ class FlockingLeaderEnv1(FlockingRelativeEnv):
         self.mask[0:self.n_leaders] = 0
         self.quiver = None
         self.half_leaders = int(self.n_leaders / 2.0)
+        self.n_timesteps = 0
+        self.done=False
+        self.x_goal = 10
 
     def params_from_cfg(self, args):
         super(FlockingLeaderEnv1, self).params_from_cfg(args)
@@ -21,6 +24,7 @@ class FlockingLeaderEnv1(FlockingRelativeEnv):
 
     def step(self, u):
         assert u.shape == (self.n_agents, self.nu)
+        self.n_timesteps += 1
         # u = np.clip(u, a_min=-self.max_accel, a_max=self.max_accel)
         self.u = u
         leader_dict = {1: "streaker", 0: "passive_leader"}
@@ -59,12 +63,18 @@ class FlockingLeaderEnv1(FlockingRelativeEnv):
 
         #sol2) if leader> front 10% of flock, x(velocity)==0
 
+        if min(self.x[:,0]) > self.x_goal:
+            self.done = True
+            print('\nn_timesteps: ',self.n_timesteps)
+
         self.compute_helpers(self.leader_mode)
-        return (self.state_values, self.state_network), self.instant_cost(self.leader_mode), False, {}
+        return (self.state_values, self.state_network), self.instant_cost(self.leader_mode), self.done, {}
 
     def reset(self):
         super(FlockingLeaderEnv1, self).reset()
         self.leader_mode = 1 #active leader
+        self.done = False
+        self.n_timesteps = 0
         # self.x[0:self.n_leaders, 2:4] = np.ones((self.n_leaders, 2)) * np.random.uniform(low=-self.v_max,
         #                                                                                  high=self.v_max, size=(1, 1))
         self.x[0:self.n_leaders, 2:4] = np.ones((self.n_leaders, 2)) * [[self.v_max, 0]]

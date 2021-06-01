@@ -262,11 +262,12 @@ class FlockingRelativeEnv(gym.Env):
             line1, = self.ax.plot(self.x[:, 0], self.x[:, 1],
                                   'b.')  # Returns a tuple of line objects, thus the comma
             self.ax.plot([0], [0], 'kx')
+            self.ax.plot([10,10],[-10,10])
             plt.ylim(-1.0 * self.r_max, 1.0 * self.r_max)
             plt.xlim(-1.0 * self.r_max, 1.0 * self.r_max)
-            a = gca()
-            a.set_xticklabels(a.get_xticks(), font)
-            a.set_yticklabels(a.get_yticks(), font)
+            # a = gca()
+            # a.set_xticklabels(a.get_xticks(), font)
+            # a.set_yticklabels(a.get_yticks(), font)
             plt.title('GNN Controller')
             self.fig = fig
             self.line1 = line1
