@@ -59,13 +59,21 @@ class FlockingLeaderEnv1(FlockingRelativeEnv):
 
         #sol2) if leader> front 10% of flock, x(velocity)==0
 
-        # x in nest?
-        for i in range(self.n_agents):
+        # x in nest? using enumerate
+        '''for i,v in enumerate(self.x_in_nest):
             # print(x[i,0:2])
+            if v > 0: continue
             if self.x[i,0] >= self.goal_x and self.x[i,1] >= -self.nest_R and self.x[i,1] < self.nest_R + 1:
                 self.x_in_nest[i] = 1
-                print('n_x_in_nest: ',sum(self.x_in_nest),'in step')
-
+                print('n_x_in_nest: ',sum(self.x_in_nest),'in step')'''
+        
+        # x in nest?
+        cond1 = self.x[:,0] >= self.goal_x
+        cond2 = self.x[:,1]>= -self.nest_R
+        cond3 = self.x[:,1] < self.nest_R + 1
+        # print(cond1 & cond2 & cond3)
+        self.x_in_nest = cond1 & cond2 & cond3
+        # print('n_x_in_nest: ',sum(self.x_in_nest),'in step')
 
         if min(self.x[:,0]) > self.goal_x:
             self.done = True

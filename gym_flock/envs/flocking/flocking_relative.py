@@ -73,7 +73,6 @@ class FlockingRelativeEnv(gym.Env):
         self.goal_x = 10
         self.nest_R = 5/4*np.sqrt(self.r_max * np.sqrt(self.n_agents))
         self.x_in_nest = np.zeros(self.n_agents)
-        print('n_x_in_nest: ',sum(self.x_in_nest),'in init')
 
     def params_from_cfg(self, args):
         self.comm_radius = args.getfloat('comm_radius')
@@ -113,13 +112,7 @@ class FlockingRelativeEnv(gym.Env):
         self.x[:, 2] = self.x[:, 2] + self.u[:, 0] * self.dt
         # y velocity
         self.x[:, 3] = self.x[:, 3] + self.u[:, 1] * self.dt
-        # x in nest?
-        for index in range(self.n_agents):
-            print(x[index,0:2])
-            if x[index,0] >= self.goal_x and x[index,1] >= -self.nest_R and x[index,1] < self.nest_R + 1:
-                self.x_in_nest[i] = 1
-                print('n_x_in_nest: ',sum(self.x_in_nest),'in step')
-
+       
         self.compute_helpers()
 
         return (self.state_values, self.state_network), self.instant_cost(), False, {}
@@ -189,7 +182,6 @@ class FlockingRelativeEnv(gym.Env):
         self.done = False
         self.n_timesteps = 0
         self.x_in_nest = np.zeros(self.n_agents)
-        print('n_x_in_nest: ',sum(self.x_in_nest),'in reset')
 
         # generate an initial configuration with all agents connected,
         # and minimum distance between agents > min_dist_thresh
