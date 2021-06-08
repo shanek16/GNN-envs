@@ -73,13 +73,15 @@ class FlockingRelativeEnv(gym.Env):
         self.goal_x = 10
         self.nest_R = 5/4*np.sqrt(self.r_max * np.sqrt(self.n_agents))
         self.x_in_nest = np.zeros(self.n_agents)
+        self.S_timesteps = 0
+        self.S_in_nest = 0
 
     def params_from_cfg(self, args):
         self.comm_radius = args.getfloat('comm_radius')
         self.comm_radius2 = self.comm_radius * self.comm_radius
         self.vr = 1 / self.comm_radius2 + np.log(self.comm_radius2)
 
-
+        self.n_test_episodes = args.getint('n_test_episodes')
         self.n_agents = args.getint('n_agents')
         self.r_max = self.r_max * np.sqrt(self.n_agents)
 
@@ -157,7 +159,8 @@ class FlockingRelativeEnv(gym.Env):
         return stats
 
     def instant_cost(self,*leader_mode):  # sum of differences in velocities
-        curr_variance = -1.0 * np.sum((np.var(self.x[:, 2:4], axis=0)))
+        # curr_variance = -1.0 * np.sum((np.var(self.x[:, 2:4], axis=0)))
+        curr_variance = np.sum((np.var(self.x[:, 2:4], axis=0)))
         
         # if leader==passive mode: don't calculate var for leader
         for i in leader_mode:
@@ -330,5 +333,7 @@ class FlockingRelativeEnv(gym.Env):
     #         self.fig.canvas.flush_events()
 
     def close(self):
+        print('\nself.average_timesteps: ',self.S_timesteps/self.n_test_episodes)
+        print('average_# of_agents in nest: ',self.S_in_nest/self.n_test_episodes)
         pass
  

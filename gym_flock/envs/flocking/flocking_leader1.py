@@ -67,16 +67,16 @@ class FlockingLeaderEnv1(FlockingRelativeEnv):
                 self.x_in_nest[i] = 1
                 print('n_x_in_nest: ',sum(self.x_in_nest),'in step')'''
         
-        # x in nest?
-        cond1 = self.x[:,0] >= self.goal_x
-        cond2 = self.x[:,1]>= -self.nest_R
-        cond3 = self.x[:,1] < self.nest_R + 1
-        # print(cond1 & cond2 & cond3)
-        self.x_in_nest = cond1 & cond2 & cond3
-        # print('n_x_in_nest: ',sum(self.x_in_nest),'in step')
-
         if min(self.x[:,0]) > self.goal_x:
+            # x in nest?
+            # cond1 = self.x[:,0] >= self.goal_x
+            cond2 = self.x[:,1]>= -self.nest_R
+            cond3 = self.x[:,1] < self.nest_R + 1
+            self.x_in_nest = cond2 & cond3 #& cond1
+
             self.done = True
+            self.S_timesteps += self.n_timesteps
+            self.S_in_nest += sum(self.x_in_nest)
             print('\nn_timesteps: ',self.n_timesteps)
             print('n_agents in nest: ',sum(self.x_in_nest))
 

@@ -23,6 +23,7 @@ class FlockingLeaderEnv2(FlockingRelativeEnv):
     def step(self, u):
         leader_dict = {1: "streaker", 0: "passive_leader"}
         assert u.shape == (self.n_agents, self.nu)
+        self.n_timesteps += 1
         # u = np.clip(u, a_min=-self.max_accel, a_max=self.max_accel)
         self.u = u
 
@@ -41,8 +42,7 @@ class FlockingLeaderEnv2(FlockingRelativeEnv):
             self.leader_mode = 0 #'passive_leader'
             self.x[0:self.n_leaders, 0] = self.x[0:self.n_leaders, 0] + self.x[0:self.n_leaders, 2] * self.dt
             self.x[0:self.n_leaders, 1] = self.x[0:self.n_leaders, 1] + self.x[0:self.n_leaders, 3] * self.dt
-            self.x[0:self.n_leaders,2] = -self.v_mean #x vel=-v_mean
-            self.x[0:self.n_leaders,3] = 0 #y vel=0 ->>>>>>>>>>>>>>>>>>>idle?
+            self.x[0:self.n_leaders, 2:4] = np.ones((self.n_leaders, 2)) * [[-self.v_max, 0]]
 
         #else if  passive mode   and min(leader_position) < min(x(position)): mode=active and leader_vel=max_v
         elif self.leader_mode==0 and min(self.x[0:self.n_leaders,0]) < min(self.x[self.n_leaders:,0]):
@@ -57,9 +57,22 @@ class FlockingLeaderEnv2(FlockingRelativeEnv):
         # print('leader_mode: ',leader_dict[self.leader_mode])
         
         #sol2) if leader> front 10% of flock, x(velocity)==0
+        
+        if min(self.x[:,0]) > self.goal_x:
+            # x in nest?
+            # cond1 = self.x[:,0] >= self.goal_x
+            cond2 = self.x[:,1]>= -self.nest_R
+            cond3 = self.x[:,1] < self.nest_R + 1
+            self.x_in_nest = cond2 & cond3 #& cond1
+
+            self.done = True
+            self.S_timesteps += self.n_timesteps
+            self.S_in_nest += sum(self.x_in_nest)
+            print('\nn_timesteps: ',self.n_timesteps)
+            print('n_agents in nest: ',sum(self.x_in_nest))
 
         self.compute_helpers(self.leader_mode)
-        return (self.state_values, self.state_network), self.instant_cost(self.leader_mode), False, {}
+        return (self.state_values, self.state_network), self.instant_cost(self.leader_mode), self.done, {}
 
     def reset(self):
         super(FlockingLeaderEnv2, self).reset()
