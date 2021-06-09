@@ -31,7 +31,7 @@ class FlockingLeaderEnv(FlockingRelativeEnv):
         self.x[:, 2] = self.x[:, 2] + self.u[:, 0] * self.dt * self.mask
         self.x[:, 3] = self.x[:, 3] + self.u[:, 1] * self.dt * self.mask
         
-        # print(min(self.x[:,0]),' > ',self.goal_x ,'?')
+        # active when test
         if min(self.x[:,0]) > self.goal_x:
             # x in nest?
             # cond1 = self.x[:,0] >= self.goal_x
@@ -44,6 +44,9 @@ class FlockingLeaderEnv(FlockingRelativeEnv):
             print('\nn_timesteps: ',self.n_timesteps)
             print('n_agents in nest: ',sum(self.x_in_nest))
             self.done = True
+        # #active when train
+        # if self.n_timesteps > 199:
+        #     self.done = True
 
         self.compute_helpers()
         return (self.state_values, self.state_network), self.instant_cost(), self.done, {}
@@ -58,6 +61,7 @@ class FlockingLeaderEnv(FlockingRelativeEnv):
 
     def render(self, mode='human'):
         super(FlockingLeaderEnv, self).render(mode)
+        self.ax.plot([self.goal_x,self.goal_x],[-self.nest_R,self.nest_R])
 
         X = self.x[0:self.n_leaders, 0]
         Y = self.x[0:self.n_leaders, 1]
@@ -72,3 +76,9 @@ class FlockingLeaderEnv(FlockingRelativeEnv):
 
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
+
+    def close(self):
+        print('\nself.average_timesteps: ',self.S_timesteps/self.n_test_episodes)
+        print('average_# of_agents in nest: ',self.S_in_nest/self.n_test_episodes)
+        pass
+ 

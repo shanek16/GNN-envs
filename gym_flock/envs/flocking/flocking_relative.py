@@ -273,7 +273,7 @@ class FlockingRelativeEnv(gym.Env):
             line1, = self.ax.plot(self.x[:, 0], self.x[:, 1],
                                   'b.')  # Returns a tuple of line objects, thus the comma
             self.ax.plot([0], [0], 'kx')
-            self.ax.plot([self.goal_x,self.goal_x],[-self.nest_R,self.nest_R])
+            # self.ax.plot([self.goal_x,self.goal_x],[-self.nest_R,self.nest_R])
             plt.ylim(-1.0 * self.r_max, 1.0 * self.r_max)
             plt.xlim(-1.0 * self.r_max, 1.0 * self.r_max)
             # a = gca()
@@ -288,52 +288,6 @@ class FlockingRelativeEnv(gym.Env):
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
 
-    # def render(self, mode='human'):
-    #     """
-    #     Render the environment with agents as points in 2D space
-    #     """
-    #
-    #     quiver_flag = True
-    #     if self.fig is None:
-    #         # plt.ion()
-    #         fig = plt.figure()
-    #         self.ax = fig.add_subplot(111)
-    #         line1, = self.ax.plot(self.x[:, 0], self.x[:, 1], 'bo', label='n = 0 s')  # Returns a tuple of line objects, thus the comma
-    #         self.ax.plot([0], [0], 'kx')
-    #         plt.ylim(-0.5 * self.r_max, 1.0 * self.r_max)
-    #         plt.xlim(-0.5 * self.r_max, 1.0 * self.r_max)
-    #         a = gca()
-    #         a.set_xticklabels(a.get_xticks(), font)
-    #         a.set_yticklabels(a.get_yticks(), font)
-    #         # plt.title('GNN Controller')
-    #         self.fig = fig
-    #         self.line1 = line1
-    #
-    #         if quiver_flag:
-    #             X = self.x[:, 0]
-    #             Y = self.x[:, 1]
-    #             U = self.x[:, 2]
-    #             V = self.x[:, 3]
-    #
-    #             self.ax.quiver(X, Y, U, V, color='k')
-    #
-    #     else:
-    #         if quiver_flag:
-    #             X = self.x[:, 0]
-    #             Y = self.x[:, 1]
-    #             U = self.x[:, 2]
-    #             V = self.x[:, 3]
-    #
-    #             self.ax.quiver(X, Y, U, V, color='k')
-    #
-    #         self.ax.plot(self.x[:, 0], self.x[:, 1], 'go', label='n = 300 s')  # Returns a tuple of line objects, thus the comma
-    #         self.ax.legend()
-    #
-    #         self.fig.canvas.draw()
-    #         self.fig.canvas.flush_events()
-
     def close(self):
-        print('\nself.average_timesteps: ',self.S_timesteps/self.n_test_episodes)
-        print('average_# of_agents in nest: ',self.S_in_nest/self.n_test_episodes)
         pass
  
