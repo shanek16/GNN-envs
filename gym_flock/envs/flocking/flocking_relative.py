@@ -289,7 +289,7 @@ class FlockingRelativeEnv(gym.Env):
             line2, = self.ax.plot(self.x[0:self.n_leaders, 0], self.x[0:self.n_leaders, 1],
                                   'r.')  # Returns a tuple of line objects, thus the comma
             # line3, = self.ax.plot([0, self.Ry_final],[self.Ry_final, self.Ry_final*(1-1/np.tan(self.theta))], color='r')
-            line3, = self.ax.plot([0, np.mean(self.x[self.n_leaders:,0])],[self.Ry_final, np.mean(self.x[self.n_leaders:,1])], color='r')#center line: 
+            # line3, = self.ax.plot([0, np.mean(self.x[self.n_leaders:,0])],[self.Ry_final, np.mean(self.x[self.n_leaders:,1])], color='r')#center line: 
             self.ax.plot([0], [0], 'kx')
             # self.ax.plot([self.goal_x,self.goal_x],[-self.nest_R,self.nest_R])
 
@@ -308,13 +308,13 @@ class FlockingRelativeEnv(gym.Env):
             self.fig = fig
             self.line1 = line1
             self.line2 = line2
-            self.line3 = line3#center line: 
+            # self.line3 = line3#center line: 
         self.line1.set_xdata(self.x[self.n_leaders:, 0])
         self.line1.set_ydata(self.x[self.n_leaders:, 1])
         self.line2.set_xdata(self.x[0:self.n_leaders, 0])
         self.line2.set_ydata(self.x[0:self.n_leaders, 1])
-        self.line3.set_xdata([0, np.mean(self.x[self.n_leaders:,0])])#center line: 
-        self.line3.set_ydata([self.Ry_final, np.mean(self.x[self.n_leaders:,1])])#center line: 
+        # self.line3.set_xdata([0, np.mean(self.x[self.n_leaders:,0])])#center line: 
+        # self.line3.set_ydata([self.Ry_final, np.mean(self.x[self.n_leaders:,1])])#center line: 
         # self.line3.set_xdata([0, self.Ry_final])
         # self.line3.set_ydata([self.Ry_final, self.Ry_final*(1-1/np.tan(self.theta))])
         self.fig.canvas.draw()
