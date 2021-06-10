@@ -45,8 +45,8 @@ class FlockingLeaderEnv1_v2(FlockingRelativeEnv):
         if self.leader_mode==1 and max((self.x[0:self.n_leaders,1]-self.v_max)/self.x[0:self.n_leaders,0]) < 1/np.tan(theta + self.theta_r):
             self.m_timesteps += 1
             t = np.pi/4 * self.m_timesteps * self.dt
-            self.x[0:self.n_leader, 2] = np.ones((self.n_leaders,)) * -self.v_max * np.sin(t - np.pi/2)
-            self.x[0:self.n_leader, 3] = np.ones((self.n_leaders,)) * self.v_max * np.cos(t - np.pi/2)
+            self.x[0:self.n_leaders, 2] = np.ones((self.n_leaders,)) * -self.v_max * np.sin(t - np.pi/2)
+            self.x[0:self.n_leaders, 3] = np.ones((self.n_leaders,)) * self.v_max * np.cos(t - np.pi/2)
 
         #(3)elif leader_mode == 1 and max((y-v_max)/x) > cot(theta + theta_r): mode=passive and leader_vel = - (1)
         elif self.leader_mode==1 and max((self.x[0:self.n_leaders,1]-self.v_max)/self.x[0:self.n_leaders,0]) >= 1/np.tan(theta + self.theta_r):
@@ -58,8 +58,8 @@ class FlockingLeaderEnv1_v2(FlockingRelativeEnv):
             self.leader_mode = 1 #'active_leader'
             self.m_timesteps += 1
             t = np.pi/4 * self.m_timesteps * self.dt
-            self.x[0:self.n_leader, 2] = np.ones((self.n_leaders,)) * -self.v_max * np.sin(t - np.pi/2)
-            self.x[0:self.n_leader, 3] = np.ones((self.n_leaders,)) * self.v_max * np.cos(t - np.pi/2)
+            self.x[0:self.n_leaders, 2] = np.ones((self.n_leaders,)) * -self.v_max * np.sin(t - np.pi/2)
+            self.x[0:self.n_leaders, 3] = np.ones((self.n_leaders,)) * self.v_max * np.cos(t - np.pi/2)
         #(5,6)
         else:
             self.x[0:self.n_leaders,2:4] = 0 #x,y vel=0
@@ -98,7 +98,7 @@ class FlockingLeaderEnv1_v2(FlockingRelativeEnv):
         return (self.state_values, self.state_network)
 
     def render(self, mode='human'):
-        super(FlockingLeaderEnv_v2, self).render(mode)
+        super(FlockingLeaderEnv1_v2, self).render(mode)
         # self.ax.plot([self.goal_x,self.goal_x],[-self.nest_R,self.nest_R])
         self.ax.plot([self.v_max - self.nest_R, self.v_max + self.nest_R],[self.v_max,self.v_max])
 

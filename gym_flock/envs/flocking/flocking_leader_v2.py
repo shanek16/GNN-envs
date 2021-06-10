@@ -12,7 +12,17 @@ class FlockingLeaderEnv_v2(FlockingRelativeEnv):
         self.mask[0:self.n_leaders] = 0
         # self.xor_mask = self.mask ^ 1
         self.quiver = None
-        # self.half_leaders = int(self.n_leaders / 2.0)
+        self.v_hist = np.zeros((200,2))
+        self.v_hist[0,:] = [self.v_max, 0]
+
+        t = np.pi/4 * np.arange(1,200) * self.dt
+        x = np.ones((2,199))*[-self.v_max * np.sin(t - np.pi/2), self.v_max * np.cos(t - np.pi/2)]
+        self.v_hist[1:200, :] = x.T
+        self.Rx_final = sum(self.v_hist[:,0]) * self.dt
+        self.Ry_final = sum(self.v_hist[:,1]) * self.dt
+        print('Rx: {}'.format(self.Rx_final))
+        print('Ry: {}'.format(self.Ry_final))
+
 
     def params_from_cfg(self, args):
         super(FlockingLeaderEnv_v2, self).params_from_cfg(args)
@@ -27,32 +37,28 @@ class FlockingLeaderEnv_v2(FlockingRelativeEnv):
 
         # uninformed bees
         # x, y position
-        self.x[:, 0] = self.x[:, 0] + self.x[:, 2] * self.dt + self.u[:, 0] * self.dt * self.dt * 0.5 * self.mask
-        self.x[:, 1] = self.x[:, 1] + self.x[:, 3] * self.dt + self.u[:, 1] * self.dt * self.dt * 0.5 * self.mask
+        self.x[self.n_leaders:, 0] = self.x[self.n_leaders:, 0] + self.x[self.n_leaders:, 2] * self.dt + self.u[self.n_leaders:, 0] * self.dt * self.dt * 0.5
+        self.x[self.n_leaders:, 1] = self.x[self.n_leaders:, 1] + self.x[self.n_leaders:, 3] * self.dt + self.u[self.n_leaders:, 1] * self.dt * self.dt * 0.5
         # x, y velocity
-        self.x[:, 2] = self.x[:, 2] + self.u[:, 0] * self.dt * self.mask
-        self.x[:, 3] = self.x[:, 3] + self.u[:, 1] * self.dt * self.mask
+        self.x[self.n_leaders:, 2] = self.x[self.n_leaders:, 2] + self.u[self.n_leaders:, 0] * self.dt
+        self.x[self.n_leaders:, 3] = self.x[self.n_leaders:, 3] + self.u[self.n_leaders:, 1] * self.dt
+
 
         # leader bees
         # x, y position
         t = np.pi/4 * self.n_timesteps * self.dt
-        self.x[0:self.n_leaders, 0] = self.x[0:self.n_leaders, 0] + self.x[0:self.n_leader, 2] * self.dt
-        self.x[0:self.n_leaders, 1] = self.x[0:self.n_leaders, 1] + self.x[0:self.n_leader, 3] * self.dt
+        self.x[0:self.n_leaders, 0] = self.x[0:self.n_leaders, 0] + self.x[0:self.n_leaders, 2] * self.dt
+        self.x[0:self.n_leaders, 1] = self.x[0:self.n_leaders, 1] + self.x[0:self.n_leaders, 3] * self.dt
         # x, y velocity
-        self.x[0:self.n_leader, 2] = -self.v_max * np.sin(t - np.pi/2)
-        self.x[0:self.n_leader, 3] = self.v_max * np.cos(t - np.pi/2)
-        # self.x[:, 0] = self.x[:, 0] + self.x[:, 2] * self.dt + self.u[:, 0] * self.dt * self.dt * 0.5 * self.xor_mask
-        # self.x[:, 1] = self.x[:, 1] + self.x[:, 3] * self.dt + self.u[:, 1] * self.dt * self.dt * 0.5 * self.xor_mask
-        # # x, y velocity
-        # self.x[:, 2] = self.x[:, 2] + self.u[:, 0] * self.dt * self.xor_mask
-        # self.x[:, 3] = self.x[:, 3] + self.u[:, 1] * self.dt * self.xor_mask
+        self.x[0:self.n_leaders, 2] = -self.v_max * np.sin(t - np.pi/2)
+        self.x[0:self.n_leaders, 3] = self.v_max * np.cos(t - np.pi/2)
 
-        if self.n_timesteps > 199:
+        if self.n_timesteps > 199   :
             self.done = True
             # x in nest?
-            cond1 = self.x[:,0] >= self.v_max - self.nest_R
-            cond2 = self.x[:,0] <= self.v_max + self.nest_R
-            cond3 = self.x[:,1] >= self.v_max
+            cond1 = self.x[:,0] >= self.Rx_final - self.nest_R
+            cond2 = self.x[:,0] <= self.Rx_final + self.nest_R
+            cond3 = self.x[:,1] >= self.Ry_final
             self.x_in_nest = cond1 & cond2 & cond3
             self.S_in_nest += sum(self.x_in_nest)
             print('n_agents in nest: ',sum(self.x_in_nest))   
@@ -68,10 +74,12 @@ class FlockingLeaderEnv_v2(FlockingRelativeEnv):
                                                                                                                                                                           
         return (self.state_values, self.state_network)
 
+    # def render(self, index, n_test_episodes):
     def render(self, mode='human'):
-        super(FlockingLeaderEnv_v2, self).render(mode)
+        super(FlockingLeaderEnv_v2, self).render(mode)#index, n_test_episodes)
+
         # self.ax.plot([self.goal_x,self.goal_x],[-self.nest_R,self.nest_R])
-        self.ax.plot([self.v_max - self.nest_R, self.v_max + self.nest_R],[self.v_max,self.v_max])
+        self.ax.plot([self.Rx_final - self.nest_R, self.Rx_final + self.nest_R],[self.Ry_final,self.Ry_final])
 
         X = self.x[0:self.n_leaders, 0]
         Y = self.x[0:self.n_leaders, 1]

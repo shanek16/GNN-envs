@@ -41,7 +41,7 @@ class FlockingLeaderEnv(FlockingRelativeEnv):
 
             self.S_timesteps += self.n_timesteps
             self.S_in_nest += sum(self.x_in_nest)
-            print('\nn_timesteps: ',self.n_timesteps)
+            print('n_timesteps: ',self.n_timesteps)
             print('n_agents in nest: ',sum(self.x_in_nest))
             self.done = True
         # #active when train
@@ -61,6 +61,7 @@ class FlockingLeaderEnv(FlockingRelativeEnv):
 
     def render(self, mode='human'):
         super(FlockingLeaderEnv, self).render(mode)
+
         self.ax.plot([self.goal_x,self.goal_x],[-self.nest_R,self.nest_R])
 
         X = self.x[0:self.n_leaders, 0]

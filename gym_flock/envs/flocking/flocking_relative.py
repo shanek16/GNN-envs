@@ -70,7 +70,7 @@ class FlockingRelativeEnv(gym.Env):
         #added
         self.n_timesteps = 0
         self.done=False
-        self.goal_x = 10
+        self.goal_x = 30
         self.nest_R = 5/4*np.sqrt(self.r_max * np.sqrt(self.n_agents))
         self.x_in_nest = np.zeros(self.n_agents)
         self.S_timesteps = 0
@@ -262,10 +262,13 @@ class FlockingRelativeEnv(gym.Env):
         np.fill_diagonal(p, 0)
         return np.sum(np.sum(p))
 
+    # def render(self, index, n_test_episodes):
     def render(self, mode='human'):
+
         """
         Render the environment with agents as points in 2D space
         """
+        # print(self)
         if self.fig is None:
             plt.ion()
             fig = plt.figure()
@@ -274,8 +277,15 @@ class FlockingRelativeEnv(gym.Env):
                                   'b.')  # Returns a tuple of line objects, thus the comma
             self.ax.plot([0], [0], 'kx')
             # self.ax.plot([self.goal_x,self.goal_x],[-self.nest_R,self.nest_R])
-            plt.ylim(-1.0 * self.r_max, 1.0 * self.r_max)
-            plt.xlim(-1.0 * self.r_max, 1.0 * self.r_max)
+
+            # plt.xlim(-1.0 * self.r_max, 1.0 * self.r_max)
+            # plt.ylim(-1.0 * self.r_max, 1.0 * self.r_max)
+            #ver 0
+            # plt.xlim(-1.0 * self.nest_R -5, self.goal_x + 10)
+            # plt.ylim(-1.0 * self.nest_R -15, self.goal_x )
+            #ver 2
+            plt.xlim(-1.0 * self.nest_R, 1.0 * self.r_max)
+            plt.ylim(-1.0 * self.nest_R, 1.0 * self.r_max) 
             # a = gca()
             # a.set_xticklabels(a.get_xticks(), font)
             # a.set_yticklabels(a.get_yticks(), font)
@@ -287,6 +297,8 @@ class FlockingRelativeEnv(gym.Env):
         self.line1.set_ydata(self.x[:, 1])
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
+        # if index == 200:
+        #     plt.savefig('episode {}_{}'.format(n_test_episodes,self))
 
     def close(self):
         pass
