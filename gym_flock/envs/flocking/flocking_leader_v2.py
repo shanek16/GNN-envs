@@ -12,17 +12,6 @@ class FlockingLeaderEnv_v2(FlockingRelativeEnv):
         self.mask[0:self.n_leaders] = 0
         # self.xor_mask = self.mask ^ 1
         self.quiver = None
-        self.v_hist = np.zeros((200,2))
-        self.v_hist[0,:] = [self.v_max, 0]
-
-        t = np.pi/4 * np.arange(1,200) * self.dt
-        x = np.ones((2,199))*[-self.v_max * np.sin(t - np.pi/2), self.v_max * np.cos(t - np.pi/2)]
-        self.v_hist[1:200, :] = x.T
-        self.Rx_final = sum(self.v_hist[:,0]) * self.dt
-        self.Ry_final = sum(self.v_hist[:,1]) * self.dt
-        print('Rx: {}'.format(self.Rx_final))
-        print('Ry: {}'.format(self.Ry_final))
-
 
     def params_from_cfg(self, args):
         super(FlockingLeaderEnv_v2, self).params_from_cfg(args)
@@ -43,7 +32,6 @@ class FlockingLeaderEnv_v2(FlockingRelativeEnv):
         self.x[self.n_leaders:, 2] = self.x[self.n_leaders:, 2] + self.u[self.n_leaders:, 0] * self.dt
         self.x[self.n_leaders:, 3] = self.x[self.n_leaders:, 3] + self.u[self.n_leaders:, 1] * self.dt
 
-
         # leader bees
         # x, y position
         t = np.pi/4 * self.n_timesteps * self.dt
@@ -53,7 +41,7 @@ class FlockingLeaderEnv_v2(FlockingRelativeEnv):
         self.x[0:self.n_leaders, 2] = -self.v_max * np.sin(t - np.pi/2)
         self.x[0:self.n_leaders, 3] = self.v_max * np.cos(t - np.pi/2)
 
-        if self.n_timesteps > 199   :
+        if self.n_timesteps > 209:
             self.done = True
             # x in nest?
             cond1 = self.x[:,0] >= self.Rx_final - self.nest_R
@@ -70,6 +58,7 @@ class FlockingLeaderEnv_v2(FlockingRelativeEnv):
         super(FlockingLeaderEnv_v2, self).reset()
         # self.x[0:self.n_leaders, 2:4] = np.ones((self.n_leaders, 2)) * np.random.uniform(low=-self.v_max,
         #                                                                                  high=self.v_max, size=(1, 1))
+        
         self.x[0:self.n_leaders, 2:4] = np.ones((self.n_leaders, 2)) * [[self.v_max, 0]]
                                                                                                                                                                           
         return (self.state_values, self.state_network)

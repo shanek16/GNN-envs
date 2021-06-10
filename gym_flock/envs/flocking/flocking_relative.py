@@ -76,6 +76,17 @@ class FlockingRelativeEnv(gym.Env):
         self.S_timesteps = 0
         self.S_in_nest = 0
 
+        # ver2
+        self.v_hist = np.zeros((210,2))
+        self.v_hist[0,:] = [self.v_max, 0]
+        t = np.pi/4 * np.arange(1,210) * self.dt
+        x = np.ones((2,209))*[-self.v_max * np.sin(t - np.pi/2), self.v_max * np.cos(t - np.pi/2)]
+        self.v_hist[1:210, :] = x.T
+        self.Rx_final = sum(self.v_hist[:,0]) * self.dt
+        self.Ry_final = sum(self.v_hist[:,1]) * self.dt
+        print('Rx: {}'.format(self.Rx_final))
+        print('Ry: {}'.format(self.Ry_final))
+
     def params_from_cfg(self, args):
         self.comm_radius = args.getfloat('comm_radius')
         self.comm_radius2 = self.comm_radius * self.comm_radius
@@ -273,8 +284,12 @@ class FlockingRelativeEnv(gym.Env):
             plt.ion()
             fig = plt.figure()
             self.ax = fig.add_subplot(111)
-            line1, = self.ax.plot(self.x[:, 0], self.x[:, 1],
+            line1, = self.ax.plot(self.x[self.n_leaders:, 0], self.x[self.n_leaders:, 1],
                                   'b.')  # Returns a tuple of line objects, thus the comma
+            line2, = self.ax.plot(self.x[0:self.n_leaders, 0], self.x[0:self.n_leaders, 1],
+                                  'r.')  # Returns a tuple of line objects, thus the comma
+            # line3, = self.ax.plot([0, self.Ry_final],[self.Ry_final, self.Ry_final*(1-1/np.tan(self.theta))], color='r')
+            line3, = self.ax.plot([0, np.mean(self.x[self.n_leaders:,0])],[self.Ry_final, np.mean(self.x[self.n_leaders:,1])], color='r')#center line: 
             self.ax.plot([0], [0], 'kx')
             # self.ax.plot([self.goal_x,self.goal_x],[-self.nest_R,self.nest_R])
 
@@ -292,9 +307,16 @@ class FlockingRelativeEnv(gym.Env):
             plt.title('GNN Controller')
             self.fig = fig
             self.line1 = line1
-
-        self.line1.set_xdata(self.x[:, 0])
-        self.line1.set_ydata(self.x[:, 1])
+            self.line2 = line2
+            self.line3 = line3#center line: 
+        self.line1.set_xdata(self.x[self.n_leaders:, 0])
+        self.line1.set_ydata(self.x[self.n_leaders:, 1])
+        self.line2.set_xdata(self.x[0:self.n_leaders, 0])
+        self.line2.set_ydata(self.x[0:self.n_leaders, 1])
+        self.line3.set_xdata([0, np.mean(self.x[self.n_leaders:,0])])#center line: 
+        self.line3.set_ydata([self.Ry_final, np.mean(self.x[self.n_leaders:,1])])#center line: 
+        # self.line3.set_xdata([0, self.Ry_final])
+        # self.line3.set_ydata([self.Ry_final, self.Ry_final*(1-1/np.tan(self.theta))])
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
         # if index == 200:
