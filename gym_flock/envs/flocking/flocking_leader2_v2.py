@@ -22,7 +22,7 @@ class FlockingLeaderEnv2_v2(FlockingRelativeEnv):
         self.v_hist = np.zeros((210,2))
         self.v_hist[0,:] = [self.v_max, 0]
         t = np.pi/4 * np.arange(1,210) * self.dt
-        x = np.ones((2,209))*[-self.v_max * np.sin(t - np.pi/2), self.v_max * np.cos(t - np.pi/2)]
+        x = np.ones((2,210 - 1))*[-self.v_max * np.sin(t - np.pi/2), self.v_max * np.cos(t - np.pi/2)]
         self.v_hist[1:210, :] = x.T
         self.Rx_final = sum(self.v_hist[:,0]) * self.dt
         self.Ry_final = sum(self.v_hist[:,1]) * self.dt
@@ -90,13 +90,10 @@ class FlockingLeaderEnv2_v2(FlockingRelativeEnv):
             self.x[0:self.n_leaders, 3] = np.ones((self.n_leaders,)) * -self.v_max * np.cos(t - np.pi/2)
         #sol2) if leader> front 10% of flock, x(velocity)==0
         
-        if self.m_timesteps > 209:
+        if self.m_timesteps > 210 - 1:
             self.done = True
             # x in nest?
-            cond1 = self.x[:,0] >= self.Rx_final - self.nest_R
-            cond2 = self.x[:,0] <= self.Rx_final + self.nest_R
-            cond3 = self.x[:,1] >= self.Ry_final
-            self.x_in_nest = cond1 & cond2 & cond3
+            self.x_in_nest = np.square(self.x[:,0]-self.Rx_final)+np.square(self.x[:,1]-self.Ry_final) <= np.square(self.nest_R)
             self.S_in_nest += sum(self.x_in_nest)
             self.S_timesteps += self.n_timesteps
             print('n_timesteps: ',self.n_timesteps)
@@ -105,10 +102,7 @@ class FlockingLeaderEnv2_v2(FlockingRelativeEnv):
         if self.n_timesteps > 300:
             self.done = True
             # x in nest?
-            cond1 = self.x[:,0] >= self.Rx_final - self.nest_R
-            cond2 = self.x[:,0] <= self.Rx_final + self.nest_R
-            cond3 = self.x[:,1] >= self.Ry_final
-            self.x_in_nest = cond1 & cond2 & cond3
+            self.x_in_nest = np.square(self.x[:,0]-self.Rx_final)+np.square(self.x[:,1]-self.Ry_final) <= np.square(self.nest_R)
             self.S_in_nest += sum(self.x_in_nest)
             self.S_timesteps += self.n_timesteps
             print('n_timesteps: ',self.n_timesteps)
