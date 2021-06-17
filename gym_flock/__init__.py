@@ -65,13 +65,43 @@ register(
 register(
     id='FlockingLeader-v0',
     entry_point='gym_flock.envs.flocking:FlockingLeaderEnv',
-    max_episode_steps=200,
+    max_episode_steps=200000,
 )
 
 register(
     id='FlockingLeader1-v0',
     entry_point='gym_flock.envs.flocking:FlockingLeaderEnv1',
-    max_episode_steps=200,
+    max_episode_steps=200000,
+)
+
+register(
+    id='FlockingLeader2-v0',
+    entry_point='gym_flock.envs.flocking:FlockingLeaderEnv1',
+    max_episode_steps=200000,
+)
+
+register(
+    id='FlockingLeader-v2',
+    entry_point='gym_flock.envs.flocking:FlockingLeaderEnv_v2',
+    max_episode_steps=200000,
+)
+
+register(
+    id='FlockingLeader1-v2',
+    entry_point='gym_flock.envs.flocking:FlockingLeaderEnv1_v2',
+    max_episode_steps=200000,
+)
+
+register(
+    id='FlockingLeader2-v2',
+    entry_point='gym_flock.envs.flocking:FlockingLeaderEnv2_v2',
+    max_episode_steps=200000,
+)
+
+register(
+    id='FlockingLeader-v3',
+    entry_point='gym_flock.envs.flocking:FlockingLeaderEnv_v3',
+    max_episode_steps=200000,
 )
 
 register(
@@ -99,21 +129,21 @@ register(
 )
 
 
-try:
-    import airsim
+# try:
+#     import airsim
 
-    register(
-        id='FlockingAirsimAccel-v0',
-        entry_point='gym_flock.envs.flocking:FlockingAirsimAccelEnv',
-        max_episode_steps=200,
-    )
+#     register(
+#         id='FlockingAirsimAccel-v0',
+#         entry_point='gym_flock.envs.flocking:FlockingAirsimAccelEnv',
+#         max_episode_steps=200,
+#     )
 
-    register(
-        id='MappingAirsim-v0',
-        entry_point='gym_flock.envs.spatial:MappingAirsimEnv',
-        max_episode_steps=100000,
-    )
-except ImportError:
-    print('AirSim not installed.')
+#     register(
+#         id='MappingAirsim-v0',
+#         entry_point='gym_flock.envs.spatial:MappingAirsimEnv',
+#         max_episode_steps=100000,
+#     )
+# except ImportError:
+#     print('AirSim not installed.')
 
 

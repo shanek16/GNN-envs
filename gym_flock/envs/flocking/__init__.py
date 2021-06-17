@@ -7,6 +7,7 @@ from gym_flock.envs.flocking.flocking_leader2 import FlockingLeaderEnv2
 from gym_flock.envs.flocking.flocking_leader_v2 import FlockingLeaderEnv_v2
 from gym_flock.envs.flocking.flocking_leader1_v2 import FlockingLeaderEnv1_v2
 from gym_flock.envs.flocking.flocking_leader2_v2 import FlockingLeaderEnv2_v2
+from gym_flock.envs.flocking.flocking_leader_v3 import FlockingLeaderEnv_v3
 
 from gym_flock.envs.flocking.flocking_obstacle import FlockingObstacleEnv
 from gym_flock.envs.flocking.flocking_stoch import FlockingStochasticEnv

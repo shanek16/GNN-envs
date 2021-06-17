@@ -13,13 +13,22 @@ class FlockingLeaderEnv2_v2(FlockingRelativeEnv):
         self.mask[0:self.n_leaders] = 0
         self.quiver = None
         self.v_mean = 6.7 #mean velocity of uninformed bees from paper
-        self.theta_r = np.sqrt(self.r_max)/self.v_max
         self.m_timesteps = 1
 
     def params_from_cfg(self, args):
         super(FlockingLeaderEnv2_v2, self).params_from_cfg(args)
         self.mask = np.ones((self.n_agents,))
         self.mask[0:self.n_leaders] = 0
+        self.v_hist = np.zeros((210,2))
+        self.v_hist[0,:] = [self.v_max, 0]
+        t = np.pi/4 * np.arange(1,210) * self.dt
+        x = np.ones((2,209))*[-self.v_max * np.sin(t - np.pi/2), self.v_max * np.cos(t - np.pi/2)]
+        self.v_hist[1:210, :] = x.T
+        self.Rx_final = sum(self.v_hist[:,0]) * self.dt
+        self.Ry_final = sum(self.v_hist[:,1]) * self.dt
+        print('Rx: {}'.format(self.Rx_final))
+        print('Ry: {}'.format(self.Ry_final))
+        self.theta_r = np.sqrt(self.r_max)/self.Ry_final
 
     def step(self, u):
         leader_dict = {1: "streaker", 0: "passive_leader"}

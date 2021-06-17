@@ -2,26 +2,31 @@ import numpy as np
 from gym_flock.envs.flocking.flocking_relative import FlockingRelativeEnv
 
 
-class FlockingLeaderEnv_v2(FlockingRelativeEnv):
+class FlockingLeaderEnv_v3(FlockingRelativeEnv):
 
     def __init__(self):
 
-        super(FlockingLeaderEnv_v2, self).__init__()
+        super(FlockingLeaderEnv_v3, self).__init__()
         self.n_leaders = 4 #2
         self.mask = np.ones((self.n_agents,), dtype = int)
         self.mask[0:self.n_leaders] = 0
         # self.xor_mask = self.mask ^ 1
         self.quiver = None
+        self.vx = 4
+        self.timestep = 800
+        self.c = 50
 
     def params_from_cfg(self, args):
-        super(FlockingLeaderEnv_v2, self).params_from_cfg(args)
+        super(FlockingLeaderEnv_v3, self).params_from_cfg(args)
         self.mask = np.ones((self.n_agents,), dtype = int)
         self.mask[0:self.n_leaders] = 0
-        self.v_hist = np.zeros((210,2))
-        self.v_hist[0,:] = [self.v_max, 0]
-        t = np.pi/4 * np.arange(1,210) * self.dt
-        x = np.ones((2,209))*[-self.v_max * np.sin(t - np.pi/2), self.v_max * np.cos(t - np.pi/2)]
-        self.v_hist[1:210, :] = x.T
+        self.v_hist = np.zeros((800,2))
+        self.v_hist[0,:] = [self.vx, 0]
+        t = np.arange(1,800) * self.dt
+        x = np.zeros((2,self.timestep - 1))
+        x[0, :] = self.vx * np.ones(self.timestep - 1)
+        x[1, :] = np.square(self.vx)/50 * t
+        self.v_hist[1:800, :] = x.T
         self.Rx_final = sum(self.v_hist[:,0]) * self.dt
         self.Ry_final = sum(self.v_hist[:,1]) * self.dt
         print('Rx: {}'.format(self.Rx_final))
@@ -29,7 +34,6 @@ class FlockingLeaderEnv_v2(FlockingRelativeEnv):
 
     def step(self, u):
         assert u.shape == (self.n_agents, self.nu)
-        # u = np.clip(u, a_min=-self.max_accel, a_max=self.max_accel)
         self.u = u
         self.n_timesteps += 1
 
@@ -43,14 +47,14 @@ class FlockingLeaderEnv_v2(FlockingRelativeEnv):
 
         # leader bees
         # x, y position
-        t = np.pi/4 * self.n_timesteps * self.dt
+        t = self.n_timesteps * self.dt
         self.x[0:self.n_leaders, 0] = self.x[0:self.n_leaders, 0] + self.x[0:self.n_leaders, 2] * self.dt
         self.x[0:self.n_leaders, 1] = self.x[0:self.n_leaders, 1] + self.x[0:self.n_leaders, 3] * self.dt
         # x, y velocity
-        self.x[0:self.n_leaders, 2] = -self.v_max * np.sin(t - np.pi/2)
-        self.x[0:self.n_leaders, 3] = self.v_max * np.cos(t - np.pi/2)
+        self.x[0:self.n_leaders, 2] = self.vx
+        self.x[0:self.n_leaders, 3] = (self.vx^2)/50 * t
 
-        if self.n_timesteps > 209:
+        if self.n_timesteps > self.timestep - 1:
             self.done = True
             # x in nest?
             cond1 = self.x[:,0] >= self.Rx_final - self.nest_R
@@ -58,23 +62,20 @@ class FlockingLeaderEnv_v2(FlockingRelativeEnv):
             cond3 = self.x[:,1] >= self.Ry_final
             self.x_in_nest = cond1 & cond2 & cond3
             self.S_in_nest += sum(self.x_in_nest)
-            print('n_agents in nest: ',sum(self.x_in_nest))
+            print('n_agents in nest: ',sum(self.x_in_nest))   
 
         self.compute_helpers()
         return (self.state_values, self.state_network), self.instant_cost(), self.done, {}
 
     def reset(self):
-        super(FlockingLeaderEnv_v2, self).reset()
-        # self.x[0:self.n_leaders, 2:4] = np.ones((self.n_leaders, 2)) * np.random.uniform(low=-self.v_max,
-        #                                                                                  high=self.v_max, size=(1, 1))
-        
-        self.x[0:self.n_leaders, 2:4] = np.ones((self.n_leaders, 2)) * [[self.v_max, 0]]
+        super(FlockingLeaderEnv_v3, self).reset()        
+        self.x[0:self.n_leaders, 2:4] = np.ones((self.n_leaders, 2)) * [[self.vx, 0]]
                                                                                                                                                                           
         return (self.state_values, self.state_network)
 
     # def render(self, index, n_test_episodes):
     def render(self, mode='human'):
-        super(FlockingLeaderEnv_v2, self).render(mode)#index, n_test_episodes)
+        super(FlockingLeaderEnv_v3, self).render(mode)#index, n_test_episodes)
 
         # self.ax.plot([self.goal_x,self.goal_x],[-self.nest_R,self.nest_R])
         self.ax.plot([self.Rx_final - self.nest_R, self.Rx_final + self.nest_R],[self.Ry_final,self.Ry_final])

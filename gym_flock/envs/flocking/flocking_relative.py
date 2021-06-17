@@ -37,7 +37,7 @@ class FlockingRelativeEnv(gym.Env):
 
         # default problem parameters
         self.n_agents = 100  # int(config['network_size'])
-        self.comm_radius = 20.0#0.9  # float(config['comm_radius'])
+        self.comm_radius = 0.1#0.9  # float(config['comm_radius'])
         self.dt = 0.01  # #float(config['system_dt'])
         self.v_max = 9.4#5.0  #  float(config['max_vel_init'])
         self.v_mean = 6.7
@@ -77,15 +77,15 @@ class FlockingRelativeEnv(gym.Env):
         self.S_in_nest = 0
 
         # ver2
-        self.v_hist = np.zeros((210,2))
-        self.v_hist[0,:] = [self.v_max, 0]
-        t = np.pi/4 * np.arange(1,210) * self.dt
-        x = np.ones((2,209))*[-self.v_max * np.sin(t - np.pi/2), self.v_max * np.cos(t - np.pi/2)]
-        self.v_hist[1:210, :] = x.T
-        self.Rx_final = sum(self.v_hist[:,0]) * self.dt
-        self.Ry_final = sum(self.v_hist[:,1]) * self.dt
-        print('Rx: {}'.format(self.Rx_final))
-        print('Ry: {}'.format(self.Ry_final))
+        # self.v_hist = np.zeros((210,2))
+        # self.v_hist[0,:] = [self.v_max, 0]
+        # t = np.pi/4 * np.arange(1,210) * self.dt
+        # x = np.ones((2,209))*[-self.v_max * np.sin(t - np.pi/2), self.v_max * np.cos(t - np.pi/2)]
+        # self.v_hist[1:210, :] = x.T
+        # self.Rx_final = sum(self.v_hist[:,0]) * self.dt
+        # self.Ry_final = sum(self.v_hist[:,1]) * self.dt
+        # print('Rx: {}'.format(self.Rx_final))
+        # print('Ry: {}'.format(self.Ry_final))
 
     def params_from_cfg(self, args):
         self.comm_radius = args.getfloat('comm_radius')
@@ -139,22 +139,24 @@ class FlockingRelativeEnv(gym.Env):
         self.adj_mat = (self.r2 < self.comm_radius2).astype(float)
         # if leader==passive mode: gso for leader=0
         for i in leader_mode:
+            # print('leader mode: ',i)
             if i==0:
                 self.adj_mat[:,0:self.n_leaders]=0
                 self.adj_mat[0:self.n_leaders,:]=0
+                # print(self.adj_mat)
 
         # Normalize the adjacency matrix by the number of neighbors - results in mean pooling, instead of sum pooling
         n_neighbors = np.reshape(np.sum(self.adj_mat, axis=1), (self.n_agents,1)) # correct - checked this
         n_neighbors[n_neighbors == 0] = 1
         self.adj_mat_mean = self.adj_mat / n_neighbors 
-
+        print('adj_mat:\n',self.adj_mat)
         self.x_features = np.dstack((self.diff[:, :, 2], np.divide(self.diff[:, :, 0], np.multiply(self.r2, self.r2)), np.divide(self.diff[:, :, 0], self.r2),
                           self.diff[:, :, 3], np.divide(self.diff[:, :, 1], np.multiply(self.r2, self.r2)), np.divide(self.diff[:, :, 1], self.r2)))
 
 
         self.state_values = np.sum(self.x_features * self.adj_mat.reshape(self.n_agents, self.n_agents, 1), axis=1)
         self.state_values = self.state_values.reshape((self.n_agents, self.n_features))
-
+        print('state_values:\n',self.state_values)
         if self.mean_pooling:
             self.state_network = self.adj_mat_mean
         else:
@@ -296,11 +298,11 @@ class FlockingRelativeEnv(gym.Env):
             # plt.xlim(-1.0 * self.r_max, 1.0 * self.r_max)
             # plt.ylim(-1.0 * self.r_max, 1.0 * self.r_max)
             #ver 0
-            # plt.xlim(-1.0 * self.nest_R -5, self.goal_x + 10)
-            # plt.ylim(-1.0 * self.nest_R -15, self.goal_x )
+            plt.xlim(-1.0 * self.nest_R -5, self.goal_x + 10)
+            plt.ylim(-1.0 * self.nest_R -15, self.goal_x )
             #ver 2
-            plt.xlim(-1.0 * self.nest_R, 1.0 * self.r_max)
-            plt.ylim(-1.0 * self.nest_R, 1.0 * self.r_max) 
+            # plt.xlim(-1.0 * self.nest_R, 1.0 * self.r_max)
+            # plt.ylim(-1.0 * self.nest_R, 1.0 * self.r_max) 
             # a = gca()
             # a.set_xticklabels(a.get_xticks(), font)
             # a.set_yticklabels(a.get_yticks(), font)
