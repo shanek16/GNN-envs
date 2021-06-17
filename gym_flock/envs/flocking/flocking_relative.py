@@ -37,7 +37,7 @@ class FlockingRelativeEnv(gym.Env):
 
         # default problem parameters
         self.n_agents = 100  # int(config['network_size'])
-        self.comm_radius = 0.1#0.9  # float(config['comm_radius'])
+        self.comm_radius = 20.0#0.9  # float(config['comm_radius'])
         self.dt = 0.01  # #float(config['system_dt'])
         self.v_max = 9.4#5.0  #  float(config['max_vel_init'])
         self.v_mean = 6.7
@@ -149,14 +149,14 @@ class FlockingRelativeEnv(gym.Env):
         n_neighbors = np.reshape(np.sum(self.adj_mat, axis=1), (self.n_agents,1)) # correct - checked this
         n_neighbors[n_neighbors == 0] = 1
         self.adj_mat_mean = self.adj_mat / n_neighbors 
-        print('adj_mat:\n',self.adj_mat)
+        # print('adj_mat:\n',self.adj_mat)
         self.x_features = np.dstack((self.diff[:, :, 2], np.divide(self.diff[:, :, 0], np.multiply(self.r2, self.r2)), np.divide(self.diff[:, :, 0], self.r2),
                           self.diff[:, :, 3], np.divide(self.diff[:, :, 1], np.multiply(self.r2, self.r2)), np.divide(self.diff[:, :, 1], self.r2)))
 
 
         self.state_values = np.sum(self.x_features * self.adj_mat.reshape(self.n_agents, self.n_agents, 1), axis=1)
         self.state_values = self.state_values.reshape((self.n_agents, self.n_features))
-        print('state_values:\n',self.state_values)
+        # print('state_values:\n',self.state_values)
         if self.mean_pooling:
             self.state_network = self.adj_mat_mean
         else:
