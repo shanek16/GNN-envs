@@ -51,7 +51,9 @@ class FlockingLeaderEnv1_v2(FlockingRelativeEnv):
         self.x[0:self.n_leaders, 1] = self.x[0:self.n_leaders, 1] + self.x[0:self.n_leaders, 3] * self.dt
         #(1,2)if leader_mode == 1 and max((y-v_max)/x) < cot(theta + theta_r): leader_velocity = continue going
         # if self.leader_mode==1 and max((self.x[self.n_leaders:,1]-self.Ry_final)/self.x[self.n_leaders:,0]) > -1/np.tan(self.theta + self.theta_r):
-        if self.leader_mode==1 and max(self.x[self.n_leaders:,0]/(self.Ry_final - self.x[self.n_leaders:,1])) > max(self.x[0:self.n_leaders,0]/(self.Ry_final - self.x[0:self.n_leaders,1])):
+        if self.leader_mode==1 and \
+            max(self.x[self.n_leaders:,0]/(self.Ry_final - self.x[self.n_leaders:,1])) > max(self.x[0:self.n_leaders,0]/(self.Ry_final - self.x[0:self.n_leaders,1])):
+            
             self.m_timesteps += 1
             t = np.pi/4 * self.m_timesteps * self.dt
             self.x[0:self.n_leaders, 2] = -self.v_max * np.sin(t - np.pi/2)
@@ -59,13 +61,17 @@ class FlockingLeaderEnv1_v2(FlockingRelativeEnv):
 
         #(3)elif leader_mode == 1 and max((y-v_max)/x) > cot(theta + theta_r): mode=passive and leader_vel = - (1)
         # elif self.leader_mode==1 and max((self.x[self.n_leaders:,1]-self.Ry_final)/self.x[self.n_leaders:,0]) <= -1/np.tan(self.theta + self.theta_r):
-        elif self.leader_mode==1 and max(self.x[self.n_leaders:,0]/(self.Ry_final - self.x[self.n_leaders:,1])) <= max(self.x[0:self.n_leaders,0]/(self.Ry_final - self.x[0:self.n_leaders,1])):
+        elif self.leader_mode==1 and \
+            max(self.x[self.n_leaders:,0]/(self.Ry_final - self.x[self.n_leaders:,1])) <= max(self.x[0:self.n_leaders,0]/(self.Ry_final - self.x[0:self.n_leaders,1])):
+            
             self.leader_mode = 0 #'passive_leader'
             self.x[0:self.n_leaders,2:4] = 0 #x,y vel=0
 
         #(4)elif leader_mode == 0 and min((y-v_max)/x) < cot(theta - theta_r): mode=active and leader_vel = (1)
         # elif self.leader_mode==0 and min((self.x[self.n_leaders:,1]-self.Ry_final)/self.x[self.n_leaders:,0]) > -1/np.tan(self.theta - self.theta_r):
-        elif self.leader_mode==0 and np.mean(self.x[self.n_leaders:,0]/(self.Ry_final - self.x[self.n_leaders:,1])) > np.mean(self.x[0:self.n_leaders,0]/(self.Ry_final - self.x[0:self.n_leaders,1])):
+        elif self.leader_mode==0 and \
+            np.mean(self.x[self.n_leaders:,0]/(self.Ry_final - self.x[self.n_leaders:,1])) > np.mean(self.x[0:self.n_leaders,0]/(self.Ry_final - self.x[0:self.n_leaders,1])):
+            
             self.leader_mode = 1 #'active_leader'
             self.m_timesteps += 1
             t = np.pi/4 * self.m_timesteps * self.dt
@@ -94,7 +100,7 @@ class FlockingLeaderEnv1_v2(FlockingRelativeEnv):
             print('n_timesteps: ',self.n_timesteps)
             print('n_agents in nest: ',sum(self.x_in_nest))
 
-        if self.n_timesteps > 300:
+        if self.n_timesteps > 300 -1:
             self.done = True
             # x in nest?
             self.x_in_nest = np.square(self.x[:,0]-self.Rx_final)+np.square(self.x[:,1]-self.Ry_final) <= np.square(self.nest_R)
@@ -118,7 +124,7 @@ class FlockingLeaderEnv1_v2(FlockingRelativeEnv):
     def render(self, mode='human'):
         super(FlockingLeaderEnv1_v2, self).render(mode)
         # self.ax.plot([self.goal_x,self.goal_x],[-self.nest_R,self.nest_R])
-        self.ax.plot([self.Rx_final - self.nest_R, self.Rx_final + self.nest_R],[self.Ry_final, self.Ry_final])
+        # self.ax.plot([self.Rx_final - self.nest_R, self.Rx_final + self.nest_R],[self.Ry_final, self.Ry_final])
 
         X = self.x[0:self.n_leaders, 0]
         Y = self.x[0:self.n_leaders, 1]

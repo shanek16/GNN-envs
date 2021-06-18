@@ -99,7 +99,7 @@ class FlockingLeaderEnv2_v2(FlockingRelativeEnv):
             print('n_timesteps: ',self.n_timesteps)
             print('n_agents in nest: ',sum(self.x_in_nest))
 
-        if self.n_timesteps > 300:
+        if self.n_timesteps > 300 - 1:
             self.done = True
             # x in nest?
             self.x_in_nest = np.square(self.x[:,0]-self.Rx_final)+np.square(self.x[:,1]-self.Ry_final) <= np.square(self.nest_R)
@@ -123,7 +123,7 @@ class FlockingLeaderEnv2_v2(FlockingRelativeEnv):
     def render(self, mode='human'):
         super(FlockingLeaderEnv2_v2, self).render(mode)
         # self.ax.plot([self.goal_x,self.goal_x],[-self.nest_R,self.nest_R])
-        self.ax.plot([self.Rx_final - self.nest_R, self.Rx_final + self.nest_R],[self.Ry_final, self.Ry_final])
+        # self.ax.plot([self.Rx_final - self.nest_R, self.Rx_final + self.nest_R],[self.Ry_final, self.Ry_final])
 
         X = self.x[0:self.n_leaders, 0]
         Y = self.x[0:self.n_leaders, 1]

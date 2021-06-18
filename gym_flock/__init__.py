@@ -105,6 +105,12 @@ register(
 )
 
 register(
+    id='FlockingLeader-v4',
+    entry_point='gym_flock.envs.flocking:FlockingLeaderEnv_v4',
+    max_episode_steps=200000,
+)
+
+register(
     id='FlockingObstacle-v0',
     entry_point='gym_flock.envs.flocking:FlockingObstacleEnv',
     max_episode_steps=200,

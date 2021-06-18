@@ -293,20 +293,23 @@ class FlockingRelativeEnv(gym.Env):
             # line3, = self.ax.plot([0, self.Ry_final],[self.Ry_final, self.Ry_final*(1-1/np.tan(self.theta))], color='r')
             # line3, = self.ax.plot([0, np.mean(self.x[self.n_leaders:,0])],[self.Ry_final, np.mean(self.x[self.n_leaders:,1])], color='r')#center line: 
             self.ax.plot([0], [0], 'kx')
+            self.ax.plot([self.Rx_final], [self.Ry_final], 'rx')
             # self.ax.plot([self.goal_x,self.goal_x],[-self.nest_R,self.nest_R])
 
             # plt.xlim(-1.0 * self.r_max, 1.0 * self.r_max)
             # plt.ylim(-1.0 * self.r_max, 1.0 * self.r_max)
             #ver 0
-            plt.xlim(-1.0 * self.nest_R -5, self.goal_x + 10)
-            plt.ylim(-1.0 * self.nest_R -15, self.goal_x )
+            # plt.xlim(-1.0 * self.nest_R -5, self.goal_x + 10)
+            # plt.ylim(-1.0 * self.nest_R -15, self.goal_x )
             #ver 2
-            # plt.xlim(-1.0 * self.nest_R, 1.0 * self.r_max)
-            # plt.ylim(-1.0 * self.nest_R, 1.0 * self.r_max) 
+            plt.xlim(-1.0 * self.nest_R, 1.0 * self.r_max)
+            plt.ylim(-1.0 * self.nest_R, 1.0 * self.r_max) 
             # a = gca()
             # a.set_xticklabels(a.get_xticks(), font)
             # a.set_yticklabels(a.get_yticks(), font)
             plt.title('GNN Controller')
+            draw_circle = plt.Circle((self.Rx_final, self.Ry_final), self.nest_R, fill=False)
+            plt.gcf().gca().add_artist(draw_circle)
             self.fig = fig
             self.line1 = line1
             self.line2 = line2
