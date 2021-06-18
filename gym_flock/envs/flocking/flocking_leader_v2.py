@@ -13,15 +13,18 @@ class FlockingLeaderEnv_v2(FlockingRelativeEnv):
         # self.xor_mask = self.mask ^ 1
         self.quiver = None
 
-    def params_from_cfg(self, args):
+    def params_from_cfg(self, args, R):
         super(FlockingLeaderEnv_v2, self).params_from_cfg(args)
         self.mask = np.ones((self.n_agents,), dtype = int)
         self.mask[0:self.n_leaders] = 0
-        self.v_hist = np.zeros((300,2))
+
+        self.R = float(R)
+        print('R = ',self.R)
+        self.v_hist = np.zeros((200,2))
         self.v_hist[0,:] = [self.v_max, 0]
-        t = np.pi/4 * np.arange(1,300) * self.dt
-        x = np.ones((2,300 - 1))*[-self.v_max * np.sin(t - np.pi/2), self.v_max * np.cos(t - np.pi/2)]
-        self.v_hist[1:300, :] = x.T
+        theta = np.pi/400 * np.arange(1,200)
+        x = np.ones((2,200 - 1))*[self.v_max * np.cos(self.v_max/self.R*theta), self.v_max * np.sin(self.v_max/self.R*theta)]
+        self.v_hist[1:200, :] = x.T
         self.Rx_final = sum(self.v_hist[:,0]) * self.dt
         self.Ry_final = sum(self.v_hist[:,1]) * self.dt
         print('Rx: {}'.format(self.Rx_final))
@@ -43,14 +46,14 @@ class FlockingLeaderEnv_v2(FlockingRelativeEnv):
 
         # leader bees
         # x, y position
-        t = np.pi/4 * self.n_timesteps * self.dt
+        theta = np.pi/400 * self.n_timesteps
         self.x[0:self.n_leaders, 0] = self.x[0:self.n_leaders, 0] + self.x[0:self.n_leaders, 2] * self.dt
         self.x[0:self.n_leaders, 1] = self.x[0:self.n_leaders, 1] + self.x[0:self.n_leaders, 3] * self.dt
         # x, y velocity
-        self.x[0:self.n_leaders, 2] = -self.v_max * np.sin(t - np.pi/2)
-        self.x[0:self.n_leaders, 3] = self.v_max * np.cos(t - np.pi/2)
+        self.x[0:self.n_leaders, 2] = self.v_max * np.cos(self.v_max/self.R*theta)
+        self.x[0:self.n_leaders, 3] = self.v_max * np.sin(self.v_max/self.R*theta)
 
-        if self.n_timesteps > 300 - 1:
+        if self.n_timesteps > 200 - 1:
             self.done = True
             # x in nest?
             # cond1 = self.x[:,0] >= self.Rx_final - self.nest_R

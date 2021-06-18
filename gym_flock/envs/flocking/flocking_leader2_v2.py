@@ -13,17 +13,20 @@ class FlockingLeaderEnv2_v2(FlockingRelativeEnv):
         self.mask[0:self.n_leaders] = 0
         self.quiver = None
         self.v_mean = 6.7 #mean velocity of uninformed bees from paper
-        self.m_timesteps = 1
+        self.m_timesteps = 0
 
-    def params_from_cfg(self, args):
+    def params_from_cfg(self, args, R):
         super(FlockingLeaderEnv2_v2, self).params_from_cfg(args)
         self.mask = np.ones((self.n_agents,))
         self.mask[0:self.n_leaders] = 0
-        self.v_hist = np.zeros((210,2))
+
+        self.R = float(R)
+        print('R = ',self.R)
+        self.v_hist = np.zeros((200,2))
         self.v_hist[0,:] = [self.v_max, 0]
-        t = np.pi/4 * np.arange(1,210) * self.dt
-        x = np.ones((2,210 - 1))*[-self.v_max * np.sin(t - np.pi/2), self.v_max * np.cos(t - np.pi/2)]
-        self.v_hist[1:210, :] = x.T
+        theta = np.pi/400 * np.arange(1,200)
+        x = np.ones((2,200 - 1))*[self.v_max * np.cos(self.v_max/self.R*theta), self.v_max * np.sin(self.v_max/self.R*theta)]
+        self.v_hist[1:200, :] = x.T
         self.Rx_final = sum(self.v_hist[:,0]) * self.dt
         self.Ry_final = sum(self.v_hist[:,1]) * self.dt
         print('Rx: {}'.format(self.Rx_final))
@@ -31,7 +34,6 @@ class FlockingLeaderEnv2_v2(FlockingRelativeEnv):
         self.theta_r = np.sqrt(self.r_max)/self.Ry_final
 
     def step(self, u):
-        leader_dict = {1: "streaker", 0: "passive_leader"}
         assert u.shape == (self.n_agents, self.nu)
         self.n_timesteps += 1
         # u = np.clip(u, a_min=-self.max_accel, a_max=self.max_accel)
@@ -56,9 +58,9 @@ class FlockingLeaderEnv2_v2(FlockingRelativeEnv):
             # max(follower's slope) > max(leader's slope)
 
             self.m_timesteps += 1
-            t = np.pi/4 * self.m_timesteps * self.dt
-            self.x[0:self.n_leaders, 2] = np.ones((self.n_leaders,)) * -self.v_max * np.sin(t - np.pi/2)
-            self.x[0:self.n_leaders, 3] = np.ones((self.n_leaders,)) * self.v_max * np.cos(t - np.pi/2)
+            self.theta = np.pi/400 * self.m_timesteps
+            self.x[0:self.n_leaders, 2] = self.v_max * np.cos(self.v_max/self.R*self.theta)
+            self.x[0:self.n_leaders, 3] = self.v_max * np.sin(self.v_max/self.R*self.theta)
         
         #(3)elif leader_mode == 1 and max((y-v_max)/x) > cot(theta + theta_r): mode=passive and leader_vel = - (1)
         elif self.leader_mode==1 and \
@@ -67,9 +69,9 @@ class FlockingLeaderEnv2_v2(FlockingRelativeEnv):
 
             self.leader_mode = 0 #'passive_leader'
             self.m_timesteps -= 1
-            t = np.pi/4 * self.m_timesteps * self.dt
-            self.x[0:self.n_leaders, 2] = np.ones((self.n_leaders,)) * self.v_max * np.sin(t - np.pi/2)
-            self.x[0:self.n_leaders, 3] = np.ones((self.n_leaders,)) * -self.v_max * np.cos(t - np.pi/2)
+            self.theta = np.pi/400 * self.m_timesteps
+            self.x[0:self.n_leaders, 2] = -self.v_max * np.cos(self.v_max/self.R*self.theta)
+            self.x[0:self.n_leaders, 3] = -self.v_max * np.sin(self.v_max/self.R*self.theta)
         
         #(4)elif leader_mode == 0 and min((y-v_max)/x) < cot(theta - theta_r): mode=active and leader_vel = (1)
         elif self.leader_mode==0 and \
@@ -78,42 +80,42 @@ class FlockingLeaderEnv2_v2(FlockingRelativeEnv):
 
             self.leader_mode = 1 #'active_leader'
             self.m_timesteps += 1
-            t = np.pi/4 * self.m_timesteps * self.dt
-            self.x[0:self.n_leaders, 2] = np.ones((self.n_leaders,)) * -self.v_max * np.sin(t - np.pi/2)
-            self.x[0:self.n_leaders, 3] = np.ones((self.n_leaders,)) * self.v_max * np.cos(t - np.pi/2)
+            self.theta = np.pi/400 * self.m_timesteps
+            self.x[0:self.n_leaders, 2] = self.v_max * np.cos(self.v_max/self.R*self.theta)
+            self.x[0:self.n_leaders, 3] = self.v_max * np.sin(self.v_max/self.R*self.theta)
         
         #(5,6)
         else:
             self.m_timesteps -= 1
-            t = np.pi/4 * self.m_timesteps * self.dt
-            self.x[0:self.n_leaders, 2] = np.ones((self.n_leaders,)) * self.v_max * np.sin(t - np.pi/2)
-            self.x[0:self.n_leaders, 3] = np.ones((self.n_leaders,)) * -self.v_max * np.cos(t - np.pi/2)
+            self.theta = np.pi/400 * self.m_timesteps
+            self.x[0:self.n_leaders, 2] = -self.v_max * np.cos(self.v_max/self.R*self.theta)
+            self.x[0:self.n_leaders, 3] = -self.v_max * np.sin(self.v_max/self.R*self.theta)
         #sol2) if leader> front 10% of flock, x(velocity)==0
         
-        if self.m_timesteps > 210 - 1:
+        if self.m_timesteps > 200 - 1:
             self.done = True
             # x in nest?
             self.x_in_nest = np.square(self.x[:,0]-self.Rx_final)+np.square(self.x[:,1]-self.Ry_final) <= np.square(self.nest_R)
             self.S_in_nest += sum(self.x_in_nest)
             self.S_timesteps += self.n_timesteps
-            print('n_timesteps: ',self.n_timesteps)
-            print('n_agents in nest: ',sum(self.x_in_nest))
+            # print('n_timesteps: ',self.n_timesteps)
+            # print('n_agents in nest: ',sum(self.x_in_nest))
 
-        if self.n_timesteps > 300 - 1:
+        elif self.n_timesteps > 300 - 1:
             self.done = True
             # x in nest?
             self.x_in_nest = np.square(self.x[:,0]-self.Rx_final)+np.square(self.x[:,1]-self.Ry_final) <= np.square(self.nest_R)
             self.S_in_nest += sum(self.x_in_nest)
             self.S_timesteps += self.n_timesteps
-            print('n_timesteps: ',self.n_timesteps)
-            print('n_agents in nest: ',sum(self.x_in_nest))
+            # print('n_timesteps: ',self.n_timesteps)
+            # print('n_agents in nest: ',sum(self.x_in_nest))
         self.compute_helpers(self.leader_mode)
         return (self.state_values, self.state_network), self.instant_cost(self.leader_mode), self.done, {}
 
     def reset(self):
         super(FlockingLeaderEnv2_v2, self).reset()
         self.leader_mode = 1 #active leader
-        self.m_timesteps = 1
+        self.m_timesteps = 0
         # self.x[0:self.n_leaders, 2:4] = np.ones((self.n_leaders, 2)) * np.random.uniform(low=-self.v_max,
         #                                                                                  high=self.v_max, size=(1, 1))
         self.x[0:self.n_leaders, 2:4] = np.ones((self.n_leaders, 2)) * [[self.v_max, 0]]

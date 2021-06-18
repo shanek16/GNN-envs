@@ -37,7 +37,7 @@ class FlockingRelativeEnv(gym.Env):
 
         # default problem parameters
         self.n_agents = 100  # int(config['network_size'])
-        self.comm_radius = 20.0#0.9  # float(config['comm_radius'])
+        self.comm_radius = 5.0#0.9  # float(config['comm_radius'])
         self.dt = 0.01  # #float(config['system_dt'])
         self.v_max = 9.4#5.0  #  float(config['max_vel_init'])
         self.v_mean = 6.7
